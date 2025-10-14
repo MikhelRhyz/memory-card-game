@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Memory Card Game</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="game-app">
+    <header class="game-header">
+      <div class="title">
+        <h1>Memory Match</h1>
+        <p class="subtitle">Flip cards and match the pairs</p>
+      </div>
+
+      <div class="controls">
+        <label for="difficulty">Difficulty</label>
+        <select id="difficulty" aria-label="Game difficulty">
+          <option value="easy">Easy (4×3)</option>
+          <option value="medium" selected>Medium (4×4)</option>
+          <option value="hard">Hard (6×4)</option>
+        </select>
+
+        <button id="restart" class="btn">Restart</button>
+      </div>
+    </header>
+
+    <section class="stats">
+      <div class="stat">
+        <label>Moves</label>
+        <div id="moves" class="stat-value">0</div>
+      </div>
+
+      <div class="stat">
+        <label>Matches</label>
+        <div id="matches" class="stat-value">0</div>
+      </div>
+
+      <div class="stat">
+        <label>Time</label>
+        <div id="timer" class="stat-value">00:00</div>
+      </div>
+    </section>
+
+    <!-- Game board -->
+    <!-- Use data-card-id attribute to identify a card's pair (JS will use it). -->
+    <section id="board" class="board" role="grid" aria-label="Memory board">
+      <!-- Example cards (repeat/duplicate pairs as required by difficulty).
+           Each card has two faces: .card__front (hidden when face-down) and .card__back
+           The .is-flipped and .is-matched classes are intended to be toggled by JS. -->
+      <!-- Template (create pairs in JS or duplicate in HTML for simple demos) -->
+      <div class="card" role="button" tabindex="0" aria-pressed="false" data-card-id="1">
+        <div class="card__inner">
+          <div class="card__front" aria-hidden="true">
+            <!-- Front face (visible when flipped) -->
+            <img src="assets/icon-1.svg" alt="icon 1" />
+          </div>
+          <div class="card__back">
+            <!-- Back face (cover) -->
+            <span class="logo">?</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" role="button" tabindex="0" aria-pressed="false" data-card-id="1">
+        <div class="card__inner">
+          <div class="card__front" aria-hidden="true">
+            <img src="assets/icon-1.svg" alt="icon 1" />
+          </div>
+          <div class="card__back">
+            <span class="logo">?</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add more card pairs (data-card-id="2", "3", ...) -->
+      <!-- For accessibility create at least role/button and tabindex on each card -->
+    </section>
+
+    <!-- Win modal (hidden by default) -->
+    <div id="winModal" class="modal" aria-hidden="true" role="dialog" aria-modal="true">
+      <div class="modal__panel">
+        <h2>Well done!</h2>
+        <p>You matched all the pairs 🎉</p>
+        <p class="modal-stats">Moves: <span id="modalMoves">0</span> • Time: <span id="modalTime">00:00</span></p>
+        <div class="modal-actions">
+          <button id="playAgain" class="btn primary">Play Again</button>
+          <button id="closeModal" class="btn">Close</button>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>

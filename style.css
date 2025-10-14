@@ -1,0 +1,144 @@
+/* Basic reset */
+* { box-sizing: border-box; }
+html,body { height:100%; margin:0; font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background:#f6f7fb; color:#111; }
+
+/* App layout */
+.game-app {
+  max-width: 960px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+/* Header */
+.game-header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:1rem;
+  margin-bottom:16px;
+}
+.title h1 { margin:0; font-size:1.6rem; }
+.subtitle { margin:0; color:#666; font-size:.95rem; }
+.controls { display:flex; gap:.5rem; align-items:center; }
+.btn {
+  padding:8px 12px;
+  border-radius:8px;
+  border:1px solid transparent;
+  background:#eceff6;
+  cursor:pointer;
+  font-weight:600;
+}
+.btn.primary { background:#2563eb; color:#fff; }
+
+/* Stats */
+.stats { display:flex; gap:1rem; margin-bottom:16px; }
+.stat { background:#fff; padding:10px 14px; border-radius:8px; box-shadow: 0 6px 14px rgba(0,0,0,0.06); min-width:90px; text-align:center; }
+.stat label { display:block; color:#666; font-size:.85rem; }
+.stat-value { font-weight:700; font-size:1.05rem; margin-top:6px; }
+
+/* Board layout - grid will be changed depending on difficulty via JS later.
+   Default medium: 4 columns */
+.board {
+  display:grid;
+  gap:12px;
+  grid-template-columns: repeat(4, 1fr);
+  perspective: 1000px;
+}
+
+/* Card */
+.card {
+  width:100%;
+  aspect-ratio: 3/4;
+  cursor:pointer;
+  border-radius:10px;
+  background:transparent;
+  position:relative;
+  transform-style: preserve-3d;
+  transition: transform 300ms ease;
+  outline: none;
+}
+.card:focus { box-shadow: 0 0 0 4px rgba(37,99,235,0.12); }
+
+/* Inner 3D */
+.card__inner {
+  width:100%; height:100%;
+  position:relative;
+  transform-style: preserve-3d;
+  transition: transform 300ms ease;
+  border-radius:10px;
+}
+
+/* Faces */
+.card__front, .card__back {
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  backface-visibility: hidden;
+  border-radius:10px;
+  overflow:hidden;
+  font-size:2rem;
+}
+
+/* Back (cover) */
+.card__back {
+  background: linear-gradient(180deg,#2b2f42,#3a3f57);
+  color: #fff;
+}
+
+/* Front (revealed content) */
+.card__front {
+  background: #fff;
+  transform: rotateY(180deg);
+  padding:12px;
+}
+
+/* Flipped state (to be toggled by JS) */
+.card.is-flipped .card__inner {
+  transform: rotateY(180deg);
+}
+
+/* Matched state */
+.card.is-matched {
+  box-shadow: 0 8px 24px rgba(22,163,74,0.12);
+  transform: scale(1.02);
+  pointer-events: none;
+  opacity: 0.95;
+}
+
+/* Small image styling */
+.card__front img { width:70%; height:auto; display:block }
+
+/* Modal (win) */
+.modal {
+  position:fixed;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background: rgba(3,7,18,0.45);
+  opacity:0;
+  pointer-events:none;
+  transition: opacity 200ms ease;
+}
+.modal[aria-hidden="false"] {
+  opacity:1;
+  pointer-events:auto;
+}
+.modal__panel {
+  background:#fff;
+  padding:20px;
+  border-radius:12px;
+  width:90%;
+  max-width:420px;
+  text-align:center;
+  box-shadow:0 12px 36px rgba(0,0,0,0.12);
+}
+.modal-actions { display:flex; gap:.5rem; justify-content:center; margin-top:14px; }
+
+/* Responsive */
+@media (max-width:720px) {
+  .board { grid-template-columns: repeat(3, 1fr); gap:10px; }
+  .stats { flex-direction:column; gap:8px; }
+}
