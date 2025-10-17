@@ -1,7 +1,5 @@
 let moveCounter = 0;
-let cardInners;
 const moves = document.querySelector("#moves");
-let picks = [];
 const matches = document.querySelector("#matches");
 let matchCount = 0;
 const difficulty = document.querySelector("#difficulty");
@@ -9,16 +7,19 @@ const board = document.querySelector("#board");
 const numbers = [];
 let flippedCards = [];
 
-console.log(numbers);
-
+// 🔹 Reset and generate board on difficulty change
 difficulty.addEventListener("change", () => {
   board.innerHTML = "";
+  resetGameState();
   checkDifficulty();
 });
+
+checkDifficulty();
 
 function checkDifficulty() {
   board.innerHTML = "";
   numbers.length = 0;
+  resetGameState();
 
   if (difficulty.value === "easy") {
     //generatae pairs 1 - 6
@@ -33,7 +34,7 @@ function checkDifficulty() {
     }
 
     //create 12 cards
-    for (let i = 12; i > 0; i--) {
+    for (let i = 0; i < 12; i++) {
       const divCard = document.createElement("div");
       divCard.className = "card";
 
@@ -44,8 +45,8 @@ function checkDifficulty() {
       divCardFront.className = "card__front";
 
       const img = document.createElement("img");
-      img.className = `icon-${numbers[i - 1]}`;
-      img.alt = `icon-${numbers[i - 1]}`;
+      img.className = `icon-${numbers[i]}`;
+      img.alt = `icon-${numbers[i]}`;
 
       const divCardBack = document.createElement("div");
       divCardBack.className = "card__back";
@@ -78,9 +79,7 @@ function checkDifficulty() {
       });
     }
   }
-  console.log("Difficulty: ", difficulty.value);
 }
-checkDifficulty();
 
 function countMove(){
   moveCounter++;
@@ -96,6 +95,16 @@ function countMove(){
       matches.textContent = matchCount;
 
       flippedCards = [];
+       
+      // ✅ Check for game completion
+      const totalPairs = numbers.length / 2;
+
+      if(matchCount === totalPairs){
+        setTimeout(() => {
+          alert("You win! All Pairs matched!")
+        }, 300);
+      }
+
     } else {
       setTimeout(() => {
         firstCard.classList.remove("is-flipped");
@@ -104,4 +113,13 @@ function countMove(){
       }, 1000);
     }
   }
+}
+
+//  Reset game state variables
+function resetGameState(){
+  moveCounter = 0;
+  matchCount = 0;
+  flippedCards = [];
+  moves.textContent = moveCounter;
+  matches.textContent = matchCount;
 }
