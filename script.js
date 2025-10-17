@@ -17,6 +17,7 @@ difficulty.addEventListener("change", () => {
 
 //restart game
 restartBtn.addEventListener("click", () => {
+  board.innerHTML = "";
   resetGameState();
   checkDifficulty();
 })
@@ -28,65 +29,75 @@ function checkDifficulty() {
   numbers.length = 0;
   resetGameState();
 
-  if (difficulty.value === "easy") {
-    //generatae pairs 1 - 6
-    for (let i = 1; i <= 6; i++) {
-      numbers.push(i, i);
-    }
+  let pairCount;
 
-    //shuffle
-    for (let i = numbers.length - 1; i >= 0; i--) {
-      let j = Math.floor(Math.random() * (i + 1));
-      [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
-    }
-
-    //create 12 cards
-    for (let i = 0; i < 12; i++) {
-      const divCard = document.createElement("div");
-      divCard.className = "card";
-
-      const divCardInner = document.createElement("div");
-      divCardInner.className = "card__inner";
-
-      const divCardFront = document.createElement("div");
-      divCardFront.className = "card__front";
-
-      const img = document.createElement("img");
-      img.className = `icon-${numbers[i]}`;
-      img.alt = `icon-${numbers[i]}`;
-
-      const divCardBack = document.createElement("div");
-      divCardBack.className = "card__back";
-
-      const logo = document.createElement("span");
-      logo.className = "logo";
-      logo.textContent = "?";
-
-      divCardFront.appendChild(img);
-      divCardBack.appendChild(logo);
-      divCardInner.appendChild(divCardFront);
-      divCardInner.appendChild(divCardBack);
-      divCard.appendChild(divCardInner);
-      board.appendChild(divCard);
-
-      // inside checkDifficulty() after generating each card
-      divCard.addEventListener("click", () => {
-        const inner = divCard.querySelector(".card__inner");
-
-        // Ignore if already flipped or two cards are waiting
-        if (
-          divCard.classList.contains("is-flipped") ||
-          flippedCards.length === 2
-        )
-          return;
-
-        divCard.classList.add("is-flipped");
-        flippedCards.push(divCard);
-        countMove(inner);
-      });
-    }
+  if(difficulty.value === "easy"){
+    pairCount = 6;
+  } else if (difficulty.value === "medium"){
+    pairCount = 8
+  } else if(difficulty.value === "hard"){
+    pairCount = 12;
   }
-}
+
+//generatae pairs
+  for(let i = 1; i <= pairCount; i++){
+     numbers.push(i,i);
+  }
+
+  //shuffle
+  for(let i = numbers.length - 1; i >= 0; i--){
+    let j = Math.floor(Math.random() * (i + 1));
+    [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+  }
+// create number of cards
+  for(let i = 0; i < numbers.length; i++){
+    
+    const divCard = document.createElement("div");
+    divCard.className = "card";
+
+    const divCardInner = document.createElement("div");
+    divCardInner.className = "card__inner";
+
+    const divCardFront = document.createElement("div");
+    divCardFront.className = "card__front";
+
+    const img = document.createElement("img");
+    img.className = `icon-${numbers[i]}`;
+    img.alt = `icon-${numbers[i]}`;
+
+    const divCardBack = document.createElement("div");
+    divCardBack.className = "card__back";
+
+    const logo = document.createElement("span");
+    logo.className = "logo";
+    logo.textContent = "?";
+
+    divCardFront.appendChild(img);
+    divCardBack.appendChild(logo);
+    divCardInner.appendChild(divCardFront);
+    divCardInner.appendChild(divCardBack);
+    divCard.appendChild(divCardInner);
+    board.appendChild(divCard);
+
+    // Add flip behavior
+    divCard.addEventListener("click", () => {
+      const inner = divCard.querySelector(".card__inner");
+
+      // Ignore if already flipped or two cards are waiting
+      if (
+        divCard.classList.contains("is-flipped") ||
+        flippedCards.length === 2
+      )
+        return;
+
+      divCard.classList.add("is-flipped");
+      flippedCards.push(divCard);
+      countMove();
+    });
+  }
+
+  console.log("Difficulty: ", difficulty.value, " | Cards:", numbers.length);
+  }
 
 function countMove(){
   moveCounter++;
