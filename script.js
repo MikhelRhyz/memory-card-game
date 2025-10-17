@@ -6,6 +6,7 @@ const difficulty = document.querySelector("#difficulty");
 const board = document.querySelector("#board");
 const numbers = [];
 let flippedCards = [];
+const restartBtn = document.querySelector("#restart");
 
 // 🔹 Reset and generate board on difficulty change
 difficulty.addEventListener("change", () => {
@@ -13,6 +14,12 @@ difficulty.addEventListener("change", () => {
   resetGameState();
   checkDifficulty();
 });
+
+//restart game
+restartBtn.addEventListener("click", () => {
+  resetGameState();
+  checkDifficulty();
+})
 
 checkDifficulty();
 
@@ -93,6 +100,8 @@ function countMove(){
     if(firstIcon === secondIcon){
       matchCount++;
       matches.textContent = matchCount;
+      firstCard.classList.add("is-matched");
+      secondCard.classList.add("is-matched");
 
       flippedCards = [];
        
