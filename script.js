@@ -81,3 +81,27 @@ function checkDifficulty() {
   console.log("Difficulty: ", difficulty.value);
 }
 checkDifficulty();
+
+function countMove(){
+  moveCounter++;
+  moves.textContent = moveCounter;
+
+  if(flippedCards.length === 2){
+    const [firstCard, secondCard] = flippedCards;
+    const firstIcon = firstCard.querySelector("img").className;
+    const secondIcon = secondCard.querySelector("img").className;
+
+    if(firstIcon === secondIcon){
+      matchCount++;
+      matches.textContent = matchCount;
+
+      flippedCards = [];
+    } else {
+      setTimeout(() => {
+        firstCard.classList.remove("is-flipped");
+        secondCard.classList.remove("is-flipped");
+        flippedCards = [];
+      }, 1000);
+    }
+  }
+}
