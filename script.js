@@ -7,6 +7,10 @@ const board = document.querySelector("#board");
 const numbers = [];
 let flippedCards = [];
 const restartBtn = document.querySelector("#restart");
+const timerDisplay = document.querySelector("#timer");
+let sec = 0;
+let min = 0;
+let timerInterval = null;
 
 // 🔹 Reset and generate board on difficulty change
 difficulty.addEventListener("change", () => {
@@ -20,7 +24,7 @@ restartBtn.addEventListener("click", () => {
   board.innerHTML = "";
   resetGameState();
   checkDifficulty();
-})
+});
 
 checkDifficulty();
 
@@ -31,27 +35,26 @@ function checkDifficulty() {
 
   let pairCount;
 
-  if(difficulty.value === "easy"){
+  if (difficulty.value === "easy") {
     pairCount = 6;
-  } else if (difficulty.value === "medium"){
-    pairCount = 8
-  } else if(difficulty.value === "hard"){
+  } else if (difficulty.value === "medium") {
+    pairCount = 8;
+  } else if (difficulty.value === "hard") {
     pairCount = 12;
   }
 
-//generatae pairs
-  for(let i = 1; i <= pairCount; i++){
-     numbers.push(i,i);
+  //generate pairs
+  for (let i = 1; i <= pairCount; i++) {
+    numbers.push(i, i);
   }
 
   //shuffle
-  for(let i = numbers.length - 1; i >= 0; i--){
+  for (let i = numbers.length - 1; i >= 0; i--) {
     let j = Math.floor(Math.random() * (i + 1));
     [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
   }
-// create number of cards
-  for(let i = 0; i < numbers.length; i++){
-    
+  // create number of cards
+  for (let i = 0; i < numbers.length; i++) {
     const divCard = document.createElement("div");
     divCard.className = "card";
 
@@ -84,47 +87,45 @@ function checkDifficulty() {
       const inner = divCard.querySelector(".card__inner");
 
       // Ignore if already flipped or two cards are waiting
-      if (
-        divCard.classList.contains("is-flipped") ||
-        flippedCards.length === 2
-      )
+      if (divCard.classList.contains("is-flipped") || flippedCards.length === 2)
         return;
 
       divCard.classList.add("is-flipped");
       flippedCards.push(divCard);
       countMove();
+      startTimer();
     });
   }
 
   console.log("Difficulty: ", difficulty.value, " | Cards:", numbers.length);
-  }
+}
 
-function countMove(){
+function countMove() {
   moveCounter++;
   moves.textContent = moveCounter;
 
-  if(flippedCards.length === 2){
+  if (flippedCards.length === 2) {
     const [firstCard, secondCard] = flippedCards;
     const firstIcon = firstCard.querySelector("img").className;
     const secondIcon = secondCard.querySelector("img").className;
 
-    if(firstIcon === secondIcon){
+    if (firstIcon === secondIcon) {
       matchCount++;
       matches.textContent = matchCount;
       firstCard.classList.add("is-matched");
       secondCard.classList.add("is-matched");
 
       flippedCards = [];
-       
+
       // ✅ Check for game completion
       const totalPairs = numbers.length / 2;
 
-      if(matchCount === totalPairs){
+      if (matchCount === totalPairs) {
         setTimeout(() => {
-          alert("You win! All Pairs matched!")
+          alert("You win! All Pairs matched!");
+          stopTimer();
         }, 300);
       }
-
     } else {
       setTimeout(() => {
         firstCard.classList.remove("is-flipped");
@@ -136,10 +137,40 @@ function countMove(){
 }
 
 //  Reset game state variables
-function resetGameState(){
+function resetGameState() {
   moveCounter = 0;
   matchCount = 0;
   flippedCards = [];
   moves.textContent = moveCounter;
   matches.textContent = matchCount;
+  resetTimer(); 
+}
+
+function startTimer() {
+  if (timerInterval) return;
+
+  timerInterval = setInterval(() => {
+    sec++;
+    if (sec === 60) {
+      sec = 0;
+      min++;
+    }
+
+    const formattedMin = String(min).padStart(2, "0");
+    const formattedSec = String(sec).padStart(2, "0");
+
+    timerDisplay.textContent = `${formattedMin}:${formattedSec}`;
+  }, 1000);
+}
+
+function stopTimer() {
+  clearInterval(timerInterval);
+  timerInterval = null;
+}
+
+function resetTimer() {
+  stopTimer();
+  sec = 0;
+  min = 0;
+  timerDisplay.textContent = "00:00";
 }
