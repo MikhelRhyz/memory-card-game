@@ -1,16 +1,26 @@
-let moveCounter = 0;
-const moves = document.querySelector("#moves");
-const matches = document.querySelector("#matches");
-let matchCount = 0;
-const difficulty = document.querySelector("#difficulty");
+// 🎮 Memory Card Game
+// -------------------
+// Handles dynamic board creation, difficulty levels, timer, move/match tracking
+
+// 🔹 DOM Elements
 const board = document.querySelector("#board");
-let flippedCards = [];
+const movesDisplay = document.querySelector("#moves");
+const matchesDisplay = document.querySelector("#matches");
+const difficultySelect = document.querySelector("#difficulty");
 const restartBtn = document.querySelector("#restart");
 const timerDisplay = document.querySelector("#timer");
-let sec = 0;
-let min = 0;
+
+// 🔹 Game State
+let moveCount = 0;
+let matchCount = 0;
+let flippedCards = [];
 let timerInterval = null;
-const images = [
+let seconds = 0;
+let minutes = 0;
+let doubleImages = [];
+
+// 🔹 Image Set
+const IMAGES = [
   "img/img-1.png",
   "img/img-2.png",
   "img/img-3.png",
@@ -25,137 +35,158 @@ const images = [
   "img/img-12.png",
 ];
 
-let doubleImages = [];
+// -------------------
+// 🔹 Event Listeners
+// -------------------
 
-// 🔹 Reset and generate board on difficulty change
-difficulty.addEventListener("change", () => {
-  board.innerHTML = "";
-  resetGameState();
-  checkDifficulty();
+// Regenerate board on difficulty change
+difficultySelect.addEventListener("change", () => {
+  resetGame();
+  setupBoard();
 });
 
-//restart game
+// Restart game
 restartBtn.addEventListener("click", () => {
-  board.innerHTML = "";
-  resetGameState();
-  checkDifficulty();
+  resetGame();
+  setupBoard();
 });
 
-checkDifficulty();
+// Initialize default difficulty
+setupBoard();
 
-function checkDifficulty() {
+// -------------------
+// 🔹 Game Setup
+// -------------------
+
+function setupBoard() {
   board.innerHTML = "";
   resetGameState();
 
-  let pairCount;
+  const pairCount = getPairCount(difficultySelect.value);
+  const selectedImages = IMAGES.slice(0, pairCount);
+  doubleImages = shuffle([...selectedImages, ...selectedImages]);
 
-  if (difficulty.value === "easy") {
-    pairCount = 6;
-  } else if (difficulty.value === "medium") {
-    pairCount = 8;
-  } else if (difficulty.value === "hard") {
-    pairCount = 12;
+  doubleImages.forEach((imagePath) => {
+    const card = createCard(imagePath);
+    board.appendChild(card);
+  });
+}
+
+function getPairCount(level) {
+  switch (level) {
+    case "medium": return 8;
+    case "hard": return 12;
+    default: return 6; // easy
   }
+}
 
-  const imagesToUse = images.slice(0, pairCount);
-  doubleImages = [...imagesToUse, ...imagesToUse];
+// -------------------
+// 🔹 Card Creation
+// -------------------
 
-  //shuffle
-  for (let i = doubleImages.length - 1; i >= 0; i--) {
-    let j = Math.floor(Math.random() * (i + 1));
-    [doubleImages[i], doubleImages[j]] = [doubleImages[j], doubleImages[i]];
-  }
-
-  // create number of cards
-  for (let i = 0; i < doubleImages.length; i++) {
-    const divCard = document.createElement("div");
-    divCard.className = "card";
-    divCard.innerHTML = `<div class="card__inner">
+function createCard(imagePath) {
+  const card = document.createElement("div");
+  card.className = "card";
+  card.innerHTML = `
+    <div class="card__inner">
       <div class="card__front">
-        <img src="${doubleImages[i]}" class="icon" alt="icon">
+        <img src="${imagePath}" class="icon" alt="icon">
       </div>
       <div class="card__back">
         <span class="logo">?</span>
       </div>
-    </div>`;
-    board.appendChild(divCard);
+    </div>
+  `;
 
-    // Add flip behavior
-    divCard.addEventListener("click", () => {
-      const inner = divCard.querySelector(".card__inner");
-
-      // Ignore if already flipped or two cards are waiting
-      if (divCard.classList.contains("is-flipped") || flippedCards.length === 2)
-        return;
-
-      divCard.classList.add("is-flipped");
-      flippedCards.push(divCard);
-      countMove();
-      startTimer();
-    });
-  }
+  card.addEventListener("click", () => handleCardFlip(card));
+  return card;
 }
 
-function countMove() {
-  moveCounter++;
-  moves.textContent = moveCounter;
-  
-  if (flippedCards.length === 2) {
-    const [firstCard, secondCard] = flippedCards;
-    const firstIcon = firstCard.querySelector("img").src;
-    const secondIcon = secondCard.querySelector("img").src;
+// -------------------
+// 🔹 Game Logic
+// -------------------
 
-    if (firstIcon === secondIcon) {
-      matchCount++;
-      matches.textContent = matchCount;
-      firstCard.classList.add("is-matched");
-      secondCard.classList.add("is-matched");
+function handleCardFlip(card) {
+  if (card.classList.contains("is-flipped") || flippedCards.length === 2) return;
 
-      flippedCards = [];
+  card.classList.add("is-flipped");
+  flippedCards.push(card);
 
-      // ✅ Check for game completion
-      const totalPairs = doubleImages.length / 2;
+  incrementMoveCount();
+  startTimer();
 
-      if (matchCount === totalPairs) {
-        setTimeout(() => {
-          alert("You win! All Pairs matched!");
-          stopTimer();
-        }, 300);
-      }
-    } else {
+  if (flippedCards.length === 2) checkMatch();
+}
+
+function checkMatch() {
+  const [first, second] = flippedCards;
+  const firstSrc = first.querySelector("img").src;
+  const secondSrc = second.querySelector("img").src;
+
+  if (firstSrc === secondSrc) {
+    matchCount++;
+    matchesDisplay.textContent = matchCount;
+
+    first.classList.add("is-matched");
+    second.classList.add("is-matched");
+    flippedCards = [];
+
+    // ✅ Win condition
+    if (matchCount === doubleImages.length / 2) {
       setTimeout(() => {
-        firstCard.classList.remove("is-flipped");
-        secondCard.classList.remove("is-flipped");
-        flippedCards = [];
-      }, 1000);
+        alert("🎉 You win! All pairs matched!");
+        stopTimer();
+      }, 300);
     }
+  } else {
+    setTimeout(() => {
+      first.classList.remove("is-flipped");
+      second.classList.remove("is-flipped");
+      flippedCards = [];
+    }, 1000);
   }
 }
 
-//  Reset game state variables
+// -------------------
+// 🔹 Game State Helpers
+// -------------------
+
+function incrementMoveCount() {
+  moveCount++;
+  movesDisplay.textContent = moveCount;
+}
+
+function resetGame() {
+  board.innerHTML = "";
+  resetGameState();
+}
+
 function resetGameState() {
-  moveCounter = 0;
+  moveCount = 0;
   matchCount = 0;
   flippedCards = [];
-  moves.textContent = moveCounter;
-  matches.textContent = matchCount;
+  movesDisplay.textContent = moveCount;
+  matchesDisplay.textContent = matchCount;
   resetTimer();
 }
+
+// -------------------
+// 🔹 Timer
+// -------------------
 
 function startTimer() {
   if (timerInterval) return;
 
   timerInterval = setInterval(() => {
-    sec++;
-    if (sec === 60) {
-      sec = 0;
-      min++;
+    seconds++;
+    if (seconds === 60) {
+      seconds = 0;
+      minutes++;
     }
 
-    const formattedMin = String(min).padStart(2, "0");
-    const formattedSec = String(sec).padStart(2, "0");
-
-    timerDisplay.textContent = `${formattedMin}:${formattedSec}`;
+    const min = String(minutes).padStart(2, "0");
+    const sec = String(seconds).padStart(2, "0");
+    timerDisplay.textContent = `${min}:${sec}`;
   }, 1000);
 }
 
@@ -166,7 +197,19 @@ function stopTimer() {
 
 function resetTimer() {
   stopTimer();
-  sec = 0;
-  min = 0;
+  seconds = 0;
+  minutes = 0;
   timerDisplay.textContent = "00:00";
+}
+
+// -------------------
+// 🔹 Utility
+// -------------------
+
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+  return array;
 }
