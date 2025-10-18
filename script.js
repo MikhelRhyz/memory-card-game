@@ -11,6 +11,20 @@ const timerDisplay = document.querySelector("#timer");
 let sec = 0;
 let min = 0;
 let timerInterval = null;
+const images = [
+  "img/img-1.png",
+  "img/img-2.png",
+  "img/img-3.png",
+  "img/img-4.png",
+  "img/img-5.png",
+  "img/img-6.png",
+  "img/img-7.png",
+  "img/img-8.png",
+  "img/img-9.png",
+  "img/img-10.png",
+  "img/img-11.png",
+  "img/img-12.png",
+];
 
 // 🔹 Reset and generate board on difficulty change
 difficulty.addEventListener("change", () => {
@@ -43,6 +57,9 @@ function checkDifficulty() {
     pairCount = 12;
   }
 
+  const imagesToUse = images.slice(0, pairCount);
+  const doubleImages = [...imagesToUse, ...imagesToUse];
+
   //generate pairs
   for (let i = 1; i <= pairCount; i++) {
     numbers.push(i, i);
@@ -52,34 +69,44 @@ function checkDifficulty() {
   for (let i = numbers.length - 1; i >= 0; i--) {
     let j = Math.floor(Math.random() * (i + 1));
     [numbers[i], numbers[j]] = [numbers[j], numbers[i]];
+    [doubleImages[i], doubleImages[j]] = [doubleImages[j], doubleImages[i]];
   }
+
   // create number of cards
   for (let i = 0; i < numbers.length; i++) {
     const divCard = document.createElement("div");
     divCard.className = "card";
+    divCard.innerHTML = `<div class="card__inner">
+      <div class="card__front">
+        <img src="${doubleImages[i]}" class="icon-${numbers[i]}" alt="icon-${numbers[i]}">
+      </div>
+      <div class="card__back">
+        <span class="logo">?</span>
+      </div>
+    </div>`;
 
-    const divCardInner = document.createElement("div");
-    divCardInner.className = "card__inner";
+    // const divCardInner = document.createElement("div");
+    // divCardInner.className = "card__inner";
 
-    const divCardFront = document.createElement("div");
-    divCardFront.className = "card__front";
+    // const divCardFront = document.createElement("div");
+    // divCardFront.className = "card__front";
 
-    const img = document.createElement("img");
-    img.className = `icon-${numbers[i]}`;
-    img.alt = `icon-${numbers[i]}`;
+    // const img = document.createElement("img");
+    // img.className = `icon-${numbers[i]}`;
+    // img.alt = `icon-${numbers[i]}`;
 
-    const divCardBack = document.createElement("div");
-    divCardBack.className = "card__back";
+    // const divCardBack = document.createElement("div");
+    // divCardBack.className = "card__back";
 
-    const logo = document.createElement("span");
-    logo.className = "logo";
-    logo.textContent = "?";
+    // const logo = document.createElement("span");
+    // logo.className = "logo";
+    // logo.textContent = "?";
 
-    divCardFront.appendChild(img);
-    divCardBack.appendChild(logo);
-    divCardInner.appendChild(divCardFront);
-    divCardInner.appendChild(divCardBack);
-    divCard.appendChild(divCardInner);
+    // divCardFront.appendChild(img);
+    // divCardBack.appendChild(logo);
+    // divCardInner.appendChild(divCardFront);
+    // divCardInner.appendChild(divCardBack);
+    // divCard.appendChild(divCardInner);
     board.appendChild(divCard);
 
     // Add flip behavior
@@ -103,11 +130,11 @@ function checkDifficulty() {
 function countMove() {
   moveCounter++;
   moves.textContent = moveCounter;
-
+  
   if (flippedCards.length === 2) {
     const [firstCard, secondCard] = flippedCards;
-    const firstIcon = firstCard.querySelector("img").className;
-    const secondIcon = secondCard.querySelector("img").className;
+    const firstIcon = firstCard.querySelector("img").src;
+    const secondIcon = secondCard.querySelector("img").src;
 
     if (firstIcon === secondIcon) {
       matchCount++;
@@ -143,7 +170,7 @@ function resetGameState() {
   flippedCards = [];
   moves.textContent = moveCounter;
   matches.textContent = matchCount;
-  resetTimer(); 
+  resetTimer();
 }
 
 function startTimer() {
